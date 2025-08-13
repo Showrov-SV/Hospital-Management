@@ -11,7 +11,7 @@ public class Doctor {
 
 
 
-    public Doctor(Connection connection, Scanner scanner ){
+    public Doctor(Connection connection ){
         this.connection = connection;
 
     }
@@ -19,7 +19,7 @@ public class Doctor {
 
 
     public void viewDoctors(){
-        String query = "selected * from doctors ";
+        String query = "SELECT * FROM doctors";
 
         try{
             PreparedStatement preparedStatement = connection.prepareStatement(query);

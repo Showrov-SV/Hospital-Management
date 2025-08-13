@@ -14,7 +14,7 @@ private Scanner scannner;
 
 public Patient(Connection connection, Scanner scanner ){
     this.connection = connection;
-    this.scannner = scannner;
+    this.scannner = scanner;
 
 }
 
@@ -29,7 +29,7 @@ public void addPatient(){
 
 try{
 
-String query = "INSERT INTO patient(name, age, gender) values(?,?,?)";
+String query = "INSERT INTO patients (name, age, gender) values(?,?,?)";
 PreparedStatement preparedStatement = connection.prepareStatement(query);
 
 preparedStatement.setString(1, name);
@@ -56,7 +56,7 @@ catch(SQLException e){
 }
 
 public void viewPatients(){
-    String query = "selected * from patients";
+    String query = "SELECT * FROM patients";
 
 try{
 PreparedStatement preparedStatement = connection.prepareStatement(query);
