@@ -43,7 +43,6 @@ if(affectedRows>0){
 else{
     System.out.println("Failed to add Patient!!");
 }
-
 }
 catch(SQLException e){
 
