@@ -3,6 +3,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HospitalGUI extends JFrame {
 
@@ -21,70 +23,50 @@ public class HospitalGUI extends JFrame {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false);
         topBar.setBorder(BorderFactory.createEmptyBorder(20, 30, 10, 30));
+
+        // Left panel for buttons
+        JPanel leftButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        leftButtons.setOpaque(false);
+        DarkNeonButton contactBtn = new DarkNeonButton("Contact");
+        DarkNeonButton logoutBtn = new DarkNeonButton("Logout");
+        logoutBtn.addActionListener(e -> {
+            dispose();
+                    new Login(connection);
+        });
+
+        leftButtons.add(contactBtn);
+        leftButtons.add(logoutBtn);
+        topBar.add(leftButtons, BorderLayout.WEST);
+
+        // Right panel for hospital title
         JLabel title = new JLabel("Hospital Management System");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
         title.setForeground(Color.WHITE);
-        topBar.add(title, BorderLayout.WEST);
+        JPanel rightTitle = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rightTitle.setOpaque(false);
+        rightTitle.add(title);
+        topBar.add(rightTitle, BorderLayout.EAST);
 
         // Background panel with animated gradient
         GradientPanel background = new GradientPanel();
         background.setLayout(new BorderLayout());
         add(background, BorderLayout.CENTER);
-
         background.add(topBar, BorderLayout.NORTH);
 
-        // Hero section
-        JPanel hero = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(255, 255, 255, 30));
-                g2.fill(new RoundRectangle2D.Double(20, 15, getWidth() - 40, getHeight() - 30, 32, 32));
-            }
-        };
-        hero.setOpaque(false);
-        hero.setLayout(new GridBagLayout());
-        hero.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
-
-        JLabel heroTitle = new JLabel("Welcome");
-        heroTitle.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        heroTitle.setForeground(Color.WHITE);
-
-        JLabel heroDesc = new JLabel("<html><div style='text-align:center;'>Manage patients, view doctors, and book appointments with a modern UI.</div></html>");
-        heroDesc.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        heroDesc.setForeground(new Color(235, 235, 235));
-
-        JPanel heroContent = new JPanel();
-        heroContent.setOpaque(false);
-        heroContent.setLayout(new BoxLayout(heroContent, BoxLayout.Y_AXIS));
-        heroContent.add(centered(heroTitle));
-        heroContent.add(Box.createVerticalStrut(6));
-        heroContent.add(centered(heroDesc));
-
-        hero.add(heroContent, new GridBagConstraints());
+        // Hero section with Heart Rhythm 2D animation
+        HeroPanel hero = new HeroPanel();
         background.add(hero, BorderLayout.CENTER);
 
         // Cards row
         JPanel cardsRow = new JPanel(new GridLayout(1, 3, 24, 24));
         cardsRow.setOpaque(false);
         cardsRow.setBorder(BorderFactory.createEmptyBorder(10, 30, 30, 30));
-
         cardsRow.add(createCard("Manage Patients", e -> new PatientManagement(connection)));
-        cardsRow.add(createCard("View Doctors", e -> new DoctorManagement(connection)));
+        cardsRow.add(createCard("View Doctors", e -> new DoctorManagement(connection, Session.adminName)));
         cardsRow.add(createCard("Book Appointment", e -> new AppointmentManagement(connection)));
-
         background.add(cardsRow, BorderLayout.SOUTH);
 
         setVisible(true);
-    }
-
-    private static JPanel centered(JComponent c) {
-        JPanel p = new JPanel();
-        p.setOpaque(false);
-        p.add(c);
-        return p;
     }
 
     private JPanel createCard(String title, ActionListener onClick) {
@@ -122,13 +104,9 @@ public class HospitalGUI extends JFrame {
         return card;
     }
 
-    // Animated gradient background
+    // Gradient background
     private static class GradientPanel extends JPanel implements ActionListener {
-        private final Color[] colors = {
-                new Color(0x02, 0x00, 0x24),
-                new Color(0x09, 0x09, 0x79),
-                new Color(0x00, 0xD4, 0xFF)
-        };
+        private final Color[] colors = { new Color(0x02, 0x00, 0x24), new Color(0x09, 0x09, 0x79), new Color(0x00, 0xD4, 0xFF) };
         private int index = 0;
         private float progress = 0f;
         private final Timer timer;
@@ -144,22 +122,17 @@ public class HospitalGUI extends JFrame {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-
             int w = getWidth(), h = getHeight();
             Color c1 = blend(colors[index], colors[(index + 1) % colors.length], progress);
             Color c2 = blend(colors[(index + 1) % colors.length], colors[(index + 2) % colors.length], progress);
-            GradientPaint gp = new GradientPaint(0, 0, c1, w, h, c2);
-            g2.setPaint(gp);
+            g2.setPaint(new GradientPaint(0, 0, c1, w, h, c2));
             g2.fillRect(0, 0, w, h);
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
             progress += 0.01f;
-            if (progress >= 1f) {
-                progress = 0f;
-                index = (index + 1) % colors.length;
-            }
+            if (progress >= 1f) { progress = 0f; index = (index + 1) % colors.length; }
             repaint();
         }
 
@@ -171,7 +144,7 @@ public class HospitalGUI extends JFrame {
         }
     }
 
-    // Pulsing dark neon button
+    // Dark neon button
     private static class DarkNeonButton extends JButton implements ActionListener {
         private float glowAlpha = 0.3f;
         private boolean increasing = true;
@@ -192,13 +165,8 @@ public class HospitalGUI extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (increasing) {
-                glowAlpha += 0.02f;
-                if (glowAlpha >= 0.7f) increasing = false;
-            } else {
-                glowAlpha -= 0.02f;
-                if (glowAlpha <= 0.3f) increasing = true;
-            }
+            if (increasing) { glowAlpha += 0.02f; if (glowAlpha >= 0.7f) increasing = false; }
+            else { glowAlpha -= 0.02f; if (glowAlpha <= 0.3f) increasing = true; }
             repaint();
         }
 
@@ -221,6 +189,81 @@ public class HospitalGUI extends JFrame {
         }
     }
 
-    // Main method
+    // Hero panel with Heart Rhythm 2D animation
+    private static class HeroPanel extends JPanel implements ActionListener {
+        private final Timer timer;
+        private final List<Integer> points = new ArrayList<>();
+        private int t = 0;
+        private float glow = 0.5f;
+        private boolean increasing = true;
 
+        HeroPanel() {
+            setOpaque(false);
+            setLayout(new GridBagLayout());
+            timer = new Timer(15, this); // Faster updates for smoother animation
+            timer.start();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int midY = getHeight() / 2;
+
+            // Neon welcome text
+            String welcome = "Welcome to Your Hospital Dashboard";
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 28));
+            g2.setColor(new Color(0, 255, 200, (int)(glow*255)));
+            int w = g2.getFontMetrics().stringWidth(welcome);
+            g2.drawString(welcome, (getWidth()-w)/2, 60);
+
+            // Description text
+            g2.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+            g2.setColor(new Color(200, 255, 255, 180));
+            String desc1 = "Manage patients, doctors, and appointments effortlessly";
+            String desc2 = "with futuristic powered dashboard features.";
+            g2.drawString(desc1, (getWidth()-g2.getFontMetrics().stringWidth(desc1))/2, 100);
+            g2.drawString(desc2, (getWidth()-g2.getFontMetrics().stringWidth(desc2))/2, 130);
+
+            // Heart rhythm line
+            int startX = getWidth() / 4;
+            int endX = 3 * getWidth() / 4;
+
+            g2.setStroke(new BasicStroke(3));
+            g2.setColor(new Color(0, 255, 255, 200));
+
+            int prevX = startX;
+            int prevY = midY;
+            for (int i = 0; i < points.size(); i++) {
+                int x = startX + i;
+                int y = midY - points.get(i);
+                g2.drawLine(prevX, prevY, x, y);
+                prevX = x;
+                prevY = y;
+            }
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // Glow effect
+            if(increasing){ glow += 0.02f; if(glow>=0.9f) increasing=false; }
+            else { glow -= 0.02f; if(glow<=0.5f) increasing=true; }
+
+            // Heart rhythm pattern
+            int value = 0;
+            int cycle = t % 100;
+            if(cycle < 10) value = 0;
+            else if(cycle < 15) value = 30;
+            else if(cycle < 20) value = -20;
+            else value = 0;
+
+            points.add(value);
+            if(points.size() > getWidth() / 2) points.remove(0);
+
+            t++;
+            repaint();
+        }
+    }
 }

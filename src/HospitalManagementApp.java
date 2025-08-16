@@ -12,8 +12,8 @@ public class HospitalManagementApp {
             Connection connection = DriverManager.getConnection(url, user, password);
             System.out.println("Database connected successfully!");
 
-            // Open Signup/Login first
-            new Signup(connection); // Admin can choose to signup or go to login
+            // Open Login first
+            new Login(connection); // Admin logs in first; can go to Signup if needed
 
         } catch (SQLException e) {
             e.printStackTrace();
