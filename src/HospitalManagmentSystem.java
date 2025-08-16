@@ -30,7 +30,9 @@ public class HospitalManagmentSystem {
                 System.out.println("2. VIEW PATIENTS");
                 System.out.println("3. VIEW DOCTORS");
                 System.out.println("4. BOOK APPOINTMNETS");
-                System.out.println("5. EXIT");
+                System.out.println("5. DELETE PATIENT");
+
+                System.out.println("6. EXIT");
                 System.out.println("ENTER YOUR CHOICE: ");
                 int choice = scanner.nextInt();
 
@@ -43,8 +45,8 @@ public class HospitalManagmentSystem {
                         break;
                     case 2:
                         //view patients
-                        patient.viewPatients();
-                        System.out.println();
+                        new PatientManagement(connection); // opens the Swing UI
+                    System.out.println();
                         break;
                     case 3:
                         //view doctors
@@ -57,8 +59,14 @@ public class HospitalManagmentSystem {
                         System.out.println();
                         break;
 
-                    case 5:
+                    case 6:
                         return;
+                    case 5:
+                        patient.deletePatient();
+                        System.out.println();
+                        break;
+
+
                     default:
                         System.out.println("Enter valid choice!!");
                         break;

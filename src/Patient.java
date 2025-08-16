@@ -78,7 +78,7 @@ ResultSet resultSet = preparedStatement.executeQuery();
 
 
 
- 
+
 }catch (SQLException e){
     e.printStackTrace();
 }
@@ -103,4 +103,26 @@ ResultSet resultSet = preparedStatement.executeQuery();
         }
         return false;
     }
+    public void deletePatient() {
+        System.out.print("Enter Patient ID to delete: ");
+        int id = scannner.nextInt();
+
+        String query = "DELETE FROM patients WHERE id = ?";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, id);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Patient deleted successfully.");
+            } else {
+                System.out.println("No patient found with ID " + id);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
